@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+g4f[all]
+dotenv
+textract
+pytesseract
+pdfminer.six
+xlrd
+python-pptx
+python-docx
+python-multipart
+openpyxl
+lxml
