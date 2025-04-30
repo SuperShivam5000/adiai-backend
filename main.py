@@ -75,7 +75,7 @@ async def g4f_endpoint(payload: RequestPayload):
 
                 if combined_texts:
                     combined_text = "\n\n".join(combined_texts)
-                    messages[0]["content"] += "\n\n[Reference Material Below]\n" + combined_text
+                    messages[0]["content"] += "\n\n[Content Extracted From Attached Files Below]\n" + combined_text
             print(messages[0]["content"])
             # Optional search tool
             tool_calls = [

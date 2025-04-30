@@ -3,13 +3,19 @@ import tempfile
 import textract
 import os
 
-def extract_text_from_base64(b64data: str) -> str:
-    """Decode base64 file, extract text using textract, then delete."""
+def extract_text_from_base64(b64data_with_type: str) -> str:
+    """Decode base64 file (with optional #ext suffix), extract text using textract."""
     tmp_file_path = None
     try:
-        with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+        if '#' not in b64data_with_type:
+            raise ValueError("Missing file type in base64 string. Format should be: base64#ext")
+
+        b64data, ext = b64data_with_type.rsplit('#', 1)
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext}") as tmp_file:
             tmp_file.write(base64.b64decode(b64data))
             tmp_file_path = tmp_file.name
+            print(tmp_file.name)
 
         text = textract.process(tmp_file_path)
         return text.decode('utf-8', errors='ignore')
