@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install system packages for textract + gpt4free Chrome needs
+# Install all system dependencies for textract + Chrome for gpt4free
 RUN apt-get update && apt-get install -y \
     antiword \
     unrtf \
@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
     libxml2-utils \
     catdoc \
     default-jre \
-    wbxml2 \
+    libwbxml2-utils \
     wget \
     gnupg \
     ca-certificates \
@@ -20,9 +20,10 @@ RUN apt-get update && apt-get install -y \
     libasound2 \
     fonts-liberation \
     xdg-utils \
-    --no-install-recommends
+    --no-install-recommends && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install Chrome
+# Install Google Chrome
 RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /etc/apt/trusted.gpg.d/google.gpg && \
     echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list && \
     apt-get update && apt-get install -y google-chrome-stable && \
@@ -31,15 +32,15 @@ RUN wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearm
 # Set working directory
 WORKDIR /app
 
-# Copy code
+# Copy app code
 COPY . .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Allow the platform (like Render) to specify the port
+# Let platform provide the port
 ENV PORT=8000
 EXPOSE $PORT
 
-# Use the dynamic port from the environment
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port ${PORT}"]
+# Start FastAPI app on the correct port
+CMD ["sh",]()
