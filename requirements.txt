@@ -23,5 +23,4 @@ ebooklib
 SpeechRecognition
 pocketsphinx
 extract-msg
-unrtf
 antiword
