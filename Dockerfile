@@ -1,8 +1,7 @@
 FROM python:3.11-slim
 
 # Set environment variables
-ENV DEBIAN_FRONTEND=noninteractive \
-    TESSDATA_PREFIX=/usr/share/tesseract-ocr/4.00/tessdata
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
