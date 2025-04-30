@@ -1,13 +1,27 @@
+# Web server and app logic
 fastapi
 uvicorn
+
+# AI client
 g4f[all]
+
+# General utilities
 dotenv
+python-multipart
+openpyxl
+lxml
+
+# File parsing and text extraction
 textract
 pytesseract
 pdfminer.six
 xlrd
 python-pptx
 python-docx
-python-multipart
-openpyxl
-lxml
+beautifulsoup4
+ebooklib
+SpeechRecognition
+pocketsphinx
+msg-extractor
+unrtf
+antiword
