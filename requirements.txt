@@ -22,6 +22,6 @@ beautifulsoup4
 ebooklib
 SpeechRecognition
 pocketsphinx
-msg-extractor
+extract-msg
 unrtf
 antiword
