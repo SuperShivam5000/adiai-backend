@@ -5,6 +5,10 @@ from pydantic import BaseModel
 from typing import Optional, List, Union
 from g4f.client import AsyncClient
 from extract_text import extract_text_from_base64
+from dotenv import load_dotenv
+
+# Load environment variables from .env
+load_dotenv()
 
 # Initialize FastAPI
 app = FastAPI()
@@ -42,13 +46,21 @@ async def g4f_endpoint(payload: RequestPayload):
                 print("Trying with fallback RetryProvider...")
                 client = AsyncClient()
 
+            # Determine the API key based on provider
+            api_key = None
+            if current_provider == "DeepInfraChat":
+                api_key = os.getenv("DEEPINFRACHAT_KEY")
+            elif current_provider == "HuggingFace":
+                api_key = os.getenv("HUGGINGFACE_KEY")
+
             # Special handling for image generation models
             if model in ["flux", "dall-e-3", "midjourney"]:
                 if payload.prompt:
                     result = await client.images.generate(
                         prompt=payload.prompt,
                         model=model,
-                        response_format=payload.image_format
+                        response_format=payload.image_format,
+                        api_key=api_key
                     )
                     return {"image_base64": result.data[0].b64_json} if payload.image_format == "b64_json" else {"url": result.data[0].url}
                 return {"error": "Prompt required for image generation."}
@@ -76,8 +88,9 @@ async def g4f_endpoint(payload: RequestPayload):
                 if combined_texts:
                     combined_text = "\n\n".join(combined_texts)
                     messages[0]["content"] += "\n\n[Content Extracted From Attached Files Below]\n" + combined_text
+
             print(messages[0]["content"])
-            # Optional search tool
+
             tool_calls = [
                 {
                     "function": {
@@ -98,7 +111,8 @@ async def g4f_endpoint(payload: RequestPayload):
                 model=model,
                 messages=messages,
                 image=image,
-                tool_calls=tool_calls
+                tool_calls=tool_calls,
+                api_key=api_key  # Injected API key here
             )
             return {"message": response.choices[0].message.content}
 
