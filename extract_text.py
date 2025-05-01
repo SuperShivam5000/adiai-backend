@@ -4,13 +4,13 @@ import textract
 import os
 
 def extract_text_from_base64(b64data_with_filename: str) -> str:
-    """Decode base64 file (with #filename suffix), extract text using textract."""
+    """Decode base64 file (with *filename suffix), extract text using textract."""
     tmp_file_path = None
     try:
-        if '#' not in b64data_with_filename:
-            raise ValueError("Missing filename in base64 string. Format should be: base64#filename.ext")
+        if '*' not in b64data_with_filename:
+            raise ValueError("Missing filename in base64 string. Format should be: base64*filename.ext")
 
-        b64data, filename = b64data_with_filename.rsplit('#', 1)
+        b64data, filename = b64data_with_filename.rsplit('*', 1)
         ext = os.path.splitext(filename)[1] or ".bin"
 
         with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as tmp_file:
