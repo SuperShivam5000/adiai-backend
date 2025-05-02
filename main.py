@@ -1,24 +1,38 @@
 import base64
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Literal, Dict, Any
 from g4f.client import AsyncClient
 from extract_text import extract_text_from_base64
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.get("/")
 def root():
     return {"message": "Server is awake!"}
 
+class Message(BaseModel):
+    role: Literal["user", "assistant", "system"]
+    content: str
+
 class RequestPayload(BaseModel):
-    prompt: str
+    prompt: Optional[str] = None
     model: str
     provider: Optional[str] = None
     image_base64: Optional[str] = None
     file_base64: Optional[Union[str, List[str]]] = None
     use_search: Optional[bool] = False
     image_format: Optional[str] = "b64_json"
+    messages: Optional[List[Message]] = None
 
 @app.post("/g4f")
 async def g4f_endpoint(payload: RequestPayload):
@@ -49,7 +63,7 @@ async def g4f_endpoint(payload: RequestPayload):
                     return {"image_base64": result.data[0].b64_json} if payload.image_format == "b64_json" else {"url": result.data[0].url}
                 return {"error": "Prompt required for image generation."}
 
-            messages = [{"role": "user", "content": payload.prompt}]
+            messages = [msg.dict() for msg in payload.messages] if payload.messages else [{"role": "user", "content": payload.prompt or ""}]
             image = None
 
             if payload.image_base64:
@@ -68,15 +82,15 @@ async def g4f_endpoint(payload: RequestPayload):
 
                 if combined_texts:
                     combined_text = "\n\n".join(combined_texts)
-                    messages[0]["content"] += "\n\n[Content Extracted From Attached Files Below]\n" + combined_text
-            print(messages[0]["content"])
+                    messages[-1]["content"] += "\n\n[Content Extracted From Attached Files Below]\n" + combined_text
+            print(messages[-1]["content"])
 
             tool_calls = [
                 {
                     "function": {
                         "name": "search_tool",
                         "arguments": {
-                            "query": payload.prompt,
+                            "query": payload.prompt or messages[-1]["content"],
                             "max_results": 5,
                             "max_words": 2000,
                             "add_text": True,
