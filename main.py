@@ -1,15 +1,12 @@
 import base64
-import os
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Optional, List, Union
 from g4f.client import AsyncClient
 from extract_text import extract_text_from_base64
 
-# Initialize FastAPI
 app = FastAPI()
 
-# Healthcheck route
 @app.get("/")
 def root():
     return {"message": "Server is awake!"}
@@ -18,7 +15,7 @@ class RequestPayload(BaseModel):
     prompt: str
     model: str
     provider: Optional[str] = None
-    image_base64: Optional[str] = None  # only 1 image allowed
+    image_base64: Optional[str] = None
     file_base64: Optional[Union[str, List[str]]] = None
     use_search: Optional[bool] = False
     image_format: Optional[str] = "b64_json"
@@ -29,7 +26,7 @@ async def g4f_endpoint(payload: RequestPayload):
     requested_provider = payload.provider
 
     providers_to_try = [requested_provider] if requested_provider else []
-    providers_to_try.append(None)  # fallback to RetryProvider
+    providers_to_try.append(None)
 
     last_exception = None
 
@@ -42,7 +39,6 @@ async def g4f_endpoint(payload: RequestPayload):
                 print("Trying with fallback RetryProvider...")
                 client = AsyncClient()
 
-            # Special handling for image generation models
             if model in ["flux", "dall-e-3", "midjourney"]:
                 if payload.prompt:
                     result = await client.images.generate(
@@ -53,16 +49,13 @@ async def g4f_endpoint(payload: RequestPayload):
                     return {"image_base64": result.data[0].b64_json} if payload.image_format == "b64_json" else {"url": result.data[0].url}
                 return {"error": "Prompt required for image generation."}
 
-            # Prepare chat messages
             messages = [{"role": "user", "content": payload.prompt}]
             image = None
 
-            # Handle 1 image upload for vision models
             if payload.image_base64:
                 image_bytes = base64.b64decode(payload.image_base64)
                 image = image_bytes
 
-            # Handle multiple file uploads and extract text
             if payload.file_base64:
                 if isinstance(payload.file_base64, str):
                     payload.file_base64 = [payload.file_base64]
@@ -77,7 +70,7 @@ async def g4f_endpoint(payload: RequestPayload):
                     combined_text = "\n\n".join(combined_texts)
                     messages[0]["content"] += "\n\n[Content Extracted From Attached Files Below]\n" + combined_text
             print(messages[0]["content"])
-            # Optional search tool
+
             tool_calls = [
                 {
                     "function": {

@@ -4,7 +4,6 @@ import textract
 import os
 
 def extract_text_from_base64(b64data_with_filename: str) -> str:
-    """Decode base64 file (with *filename suffix), extract text using textract."""
     tmp_file_path = None
     try:
         if '*' not in b64data_with_filename:
