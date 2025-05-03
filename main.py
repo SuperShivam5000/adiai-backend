@@ -52,12 +52,13 @@ async def g4f_endpoint(payload: RequestPayload):
             else:
                 print("Trying with fallback RetryProvider...")
                 client = AsyncClient()
+
             messages = [msg.dict() for msg in payload.messages] if payload.messages else [{"role": "user", "content": payload.prompt or ""}]
+
             if model in ["flux", "dall-e-3", "midjourney"]:
-                if payload.prompt or payload.messages:
+                if messages:
                     result = await client.images.generate(
-                        prompt=payload.prompt, #or messages[-1]["content"],
-                        messages=messages,
+                        prompt=messages[-1]["content"],
                         model=model,
                         response_format=payload.image_format
                     )
