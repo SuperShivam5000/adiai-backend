@@ -1,6 +1,6 @@
 ## AdiAI Backend
 
-This repository contains the backend for AdiAI. Check out the [frontend here](https://github.com/SuperShivam5000/adiai).  
+This repository contains the backend for AdiAI. Check out the client [here](https://github.com/SuperShivam5000/adiai).  
 Feel free to use this via API calls or create your own client. Documentation for backend API calls can be found [here](https://documenter.getpostman.com/view/22855640/2sB2j3CsNJ). 
 
 What if you could access the latest and greatest LLMs—free, forever, no hidden strings?
