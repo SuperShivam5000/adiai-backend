@@ -65,7 +65,6 @@ async def g4f_endpoint(payload: RequestPayload):
                     return {"image_base64": result.data[0].b64_json} if payload.image_format == "b64_json" else {"url": result.data[0].url}
                 return {"error": "Prompt or messages required for image generation."}
 
-            #messages = [msg.dict() for msg in payload.messages] if payload.messages else [{"role": "user", "content": payload.prompt or ""}]
             image = None
 
             if payload.image_base64:
