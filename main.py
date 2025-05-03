@@ -54,14 +54,14 @@ async def g4f_endpoint(payload: RequestPayload):
                 client = AsyncClient()
 
             if model in ["flux", "dall-e-3", "midjourney"]:
-                if payload.prompt:
+                if payload.prompt or messages:
                     result = await client.images.generate(
-                        prompt=payload.prompt,
+                        prompt=payload.prompt or messages[-1]["content"],
                         model=model,
                         response_format=payload.image_format
                     )
                     return {"image_base64": result.data[0].b64_json} if payload.image_format == "b64_json" else {"url": result.data[0].url}
-                return {"error": "Prompt required for image generation."}
+                return {"error": "Prompt or messages required for image generation."}
 
             messages = [msg.dict() for msg in payload.messages] if payload.messages else [{"role": "user", "content": payload.prompt or ""}]
             image = None
