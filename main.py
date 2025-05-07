@@ -6,6 +6,16 @@ from typing import Optional, List, Union, Literal, Dict, Any
 from g4f.client import AsyncClient
 from extract_text import extract_text_from_base64
 
+import os.path
+from g4f.cookies import set_cookies_dir, read_cookie_files
+
+import g4f.debug
+g4f.debug.logging = True
+
+cookies_dir = os.path.join(os.path.dirname(__file__), "har_and_cookies")
+set_cookies_dir(cookies_dir)
+read_cookie_files(cookies_dir)
+
 app = FastAPI()
 
 app.add_middleware(
